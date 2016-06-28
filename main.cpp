@@ -20,9 +20,10 @@ typedef unsigned long long ull;
 static const char alphanum[] =
 	"0123456789"
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	"abcdefghijklmnopqrstuvwxyz";
+	"abcdefghijklmnopqrstuvwxyz"
+	"- _";
 
-const unsigned int alphanum_len = strlen(alphanum) - 1;
+const unsigned int alphanum_len = strlen(alphanum);
 
 std::string string_target;
 unsigned int string_length;

@@ -183,8 +183,7 @@ void population_init(std::vector<solution*>& _pop)
 	for(i = 0; i < POPULATN_SIZE; i++)
 	{
 		std::string _rands = generate_string();
-		_pop.push_back(create_solution(_rands,
-									   calc_fitness(_rands)));
+		_pop.push_back(create_solution(_rands, calc_fitness(_rands)));
 	}
 }
 
@@ -195,13 +194,11 @@ void parents_init(std::vector<solution*>& _parents)
 	for(i = 0; i < POPULATN_SIZE; i++)
 	{
 		std::string _rands = generate_string();
-		_parents.push_back(create_solution(_rands,
-									   calc_fitness(_rands)));
+		_parents.push_back(create_solution(_rands, calc_fitness(_rands)));
 	}
 }
 
-void tournament(std::vector<solution*>& _pop,
-				std::vector<solution*>& _parents)
+void tournament(std::vector<solution*>& _pop, std::vector<solution*>& _parents)
 {
 	unsigned int rand_a;
 	unsigned int rand_b;
@@ -228,8 +225,7 @@ void tournament(std::vector<solution*>& _pop,
 	}
 }
 
-void crossover(std::vector<solution*>& _pop,
-			   std::vector<solution*>& _parents)
+void crossover(std::vector<solution*>& _pop, std::vector<solution*>& _parents)
 {
 	unsigned int point;
 
@@ -301,7 +297,7 @@ void free_memory(std::vector<solution*>& _parents, std::vector<solution*>& _pop)
 	}
 
 	_parents.clear();
-    _pop.clear();
+    	_pop.clear();
 }
 
 int main(int argc, char **argv)

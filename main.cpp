@@ -1,5 +1,6 @@
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include <sys/time.h>
 
@@ -10,10 +11,14 @@
 #include <iostream>
 #include <vector>
 
+/*
+Optimal results found with these settings
+
 #define MUTATION_RATE 0.02
 #define CROSSOVR_RATE 0.7
 #define POPULATN_SIZE 1000
 #define GENERATN_SIZE 100000
+*/
 
 typedef unsigned long long ull;
 
@@ -25,8 +30,16 @@ static const char alphanum[] =
 
 const unsigned int alphanum_len = strlen(alphanum);
 
-std::string string_target;
+std::string  string_target;
 unsigned int string_length;
+
+// optparse flags
+int		GENERATN_SIZE = 0;
+int		POPULATN_SIZE = 0;
+float	MUTATION_RATE = 0;
+float	CROSSOVR_RATE = 0;
+
+bool elitism_flag  = false;
 
 struct solution
 {
@@ -179,7 +192,7 @@ void population_print(std::vector<solution*>& _pop)
 
 void population_init(std::vector<solution*>& _pop)
 {
-	unsigned int i;
+	int i;
 
 	for(i = 0; i < POPULATN_SIZE; i++)
 	{
@@ -190,7 +203,7 @@ void population_init(std::vector<solution*>& _pop)
 
 void parents_init(std::vector<solution*>& _parents)
 {
-	unsigned int i;
+	int i;
 
 	for(i = 0; i < POPULATN_SIZE; i++)
 	{
@@ -204,7 +217,7 @@ void tournament(std::vector<solution*>& _pop, std::vector<solution*>& _parents)
 	unsigned int rand_a;
 	unsigned int rand_b;
 
-	for(unsigned int i = 0; i < POPULATN_SIZE; i++)
+	for(int i = 0; i < POPULATN_SIZE; i++)
 	{
 		rand_a = rand_int(0, POPULATN_SIZE - 1);
 
@@ -230,7 +243,7 @@ void crossover(std::vector<solution*>& _pop, std::vector<solution*>& _parents)
 {
 	unsigned int point;
 
-	for(unsigned int i = 0; i < POPULATN_SIZE - 1; i++)
+	for(int i = 0; i < POPULATN_SIZE - 1; i++)
 	{
 		if(rand_float() < CROSSOVR_RATE)
 		{
@@ -298,17 +311,93 @@ void free_memory(std::vector<solution*>& _parents, std::vector<solution*>& _pop)
 	}
 
 	_parents.clear();
-    	_pop.clear();
+	_pop.clear();
+}
+
+void print_usage()
+{
+	std::cout << "Usage: ./program [string]" << std::endl;
+}
+
+void verify_values()
+{
+	// verify values
+	if(MUTATION_RATE > 1 || MUTATION_RATE < 0)
+	{
+		std::cout << "[ERROR] - Mutation rate must be between 0 and 1"
+				  << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if(CROSSOVR_RATE > 1 || CROSSOVR_RATE < 0)
+	{
+		std::cout << "[ERROR] - Crossover rate must be between 0 and 1"
+				  << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if(POPULATN_SIZE < 1 || POPULATN_SIZE > INT_MAX)
+	{
+		std::cout << "[ERROR] - Population size must be greater than 1"
+				  << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if(GENERATN_SIZE < 1 || GENERATN_SIZE > INT_MAX)
+	{
+		std::cout << "[ERROR] - Generation size must be greater than 1"
+				  << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	std::cout << "[INFO] - Mutation Rate: "   << MUTATION_RATE << "\n"
+			  << "[INFO] - CrossOver Rate: "  << CROSSOVR_RATE << "\n"
+			  << "[INFO] - Population Size: " << POPULATN_SIZE << "\n"
+			  << "[INFO] - Generation Size: " << GENERATN_SIZE
+			  << std::endl;
 }
 
 int main(int argc, char **argv)
 {
-	if(argc != 2)
+	if(argc < 2)
 	{
 		std::cout << "[ERROR] - No arguments provided." << std::endl;
 		std::cout << "Usage: ./program [string]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+
+	int copts;
+
+	while((copts = getopt(argc, argv, "c:eg:m:p:w:")) != -1)
+	{
+		switch(copts)
+		{
+		case 'c':
+			CROSSOVR_RATE = atof(optarg);
+			break;
+		case 'e':
+			elitism_flag = true;
+			break;
+		case 'g':
+			GENERATN_SIZE = atoi(optarg);
+			break;
+		case 'm':
+			MUTATION_RATE = atof(optarg);
+			break;
+		case 'p':
+			POPULATN_SIZE = atoi(optarg);
+			break;
+		case 'w':
+			string_target = optarg;
+			string_length = string_target.length();
+			break;
+		default:
+			print_usage();
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	verify_values();
 
 	clock_t time_begin;
 	clock_t time_end;
@@ -322,9 +411,6 @@ int main(int argc, char **argv)
 	unsigned int max_fitness_hold;
 
 	srand(time(NULL));
-
-	string_target = argv[1];
-	string_length = string_target.length();
 
 	if(string_length > 64)
 	{
@@ -340,6 +426,7 @@ int main(int argc, char **argv)
 
 	solution* best_sol;
 	solution* elitism_solution(new solution("", 0));
+
 	std::vector<solution*> parents;
 	std::vector<solution*> population;
 
@@ -350,7 +437,7 @@ int main(int argc, char **argv)
 
 	first_pop = population[0]->text;
 
-	for(unsigned int i = 0; i < GENERATN_SIZE; i++)
+	for(int i = 0; i < GENERATN_SIZE; i++)
 	{
 		if(i == 0)
 		{

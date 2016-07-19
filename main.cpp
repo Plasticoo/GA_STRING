@@ -34,10 +34,10 @@ std::string  string_target;
 unsigned int string_length;
 
 // optparse flags
-int		GENERATN_SIZE = 0;
-int		POPULATN_SIZE = 0;
-float	MUTATION_RATE = 0;
-float	CROSSOVR_RATE = 0;
+int		GENERATN_SIZE = 100000;
+int		POPULATN_SIZE = 1000;
+float	MUTATION_RATE = 0.02f;
+float	CROSSOVR_RATE = 0.7f;
 
 bool elitism_flag  = false;
 
@@ -316,11 +316,28 @@ void free_memory(std::vector<solution*>& _parents, std::vector<solution*>& _pop)
 
 void print_usage()
 {
-	std::cout << "Usage: ./program [string]" << std::endl;
+	std::cout << "Usage: ./program [options] -w [string]" << "\n\n"
+			  << "\t -c \t something\n"
+			  << "\t -e \t something\n"
+			  << "\t -g \t something\n"
+			  << "\t -m \t something\n"
+			  << "\t -p \t something\n"
+			  << "\t -w \t something\n"
+			  << std::endl;
 }
 
 void verify_values()
 {
+	if(MUTATION_RATE == 0.02f	&&
+	   CROSSOVR_RATE == 0.7f	&&
+	   POPULATN_SIZE == 1000	&&
+	   GENERATN_SIZE == 100000  &&
+	   string_length < 64       &&
+	   string_length > 0)
+	{
+		return;
+	}
+
 	// verify values
 	if(MUTATION_RATE > 1 || MUTATION_RATE < 0)
 	{
@@ -350,25 +367,32 @@ void verify_values()
 		exit(EXIT_FAILURE);
 	}
 
+	if(string_length > 64)
+	{
+		std::cout << "[ERROR] - String is too long!" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
 	std::cout << "[INFO] - Mutation Rate: "   << MUTATION_RATE << "\n"
 			  << "[INFO] - CrossOver Rate: "  << CROSSOVR_RATE << "\n"
 			  << "[INFO] - Population Size: " << POPULATN_SIZE << "\n"
-			  << "[INFO] - Generation Size: " << GENERATN_SIZE
+			  << "[INFO] - Generation Size: " << GENERATN_SIZE << "\n"
+			  << "[INFO] - String: " << string_target << "\n"
+			  << "[INFO] - Length: " << string_length << "\n"
 			  << std::endl;
 }
 
 int main(int argc, char **argv)
 {
-	if(argc < 2)
+	/*if(argc < 2)
 	{
 		std::cout << "[ERROR] - No arguments provided." << std::endl;
-		std::cout << "Usage: ./program [string]" << std::endl;
 		exit(EXIT_FAILURE);
-	}
+		}*/
 
 	int copts;
 
-	while((copts = getopt(argc, argv, "c:eg:m:p:w:")) != -1)
+	while((copts = getopt(argc, argv, "c:eg:hm:p:w:")) != -1)
 	{
 		switch(copts)
 		{
@@ -412,18 +436,6 @@ int main(int argc, char **argv)
 
 	srand(time(NULL));
 
-	if(string_length > 64)
-	{
-		std::cout << "[ERROR] - String is too long." << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	std::cout << "[INFO] - AlphaNum Length: " << alphanum_len << std::endl;
-	std::cout << "[INFO] - String: " << string_target << std::endl;
-	std::cout << "[INFO] - Length: " << string_length << std::endl;
-	std::cout << "[INFO] - Generations:" << GENERATN_SIZE << std::endl;
-	putchar('\n');
-
 	solution* best_sol;
 	solution* elitism_solution(new solution("", 0));
 
@@ -445,8 +457,12 @@ int main(int argc, char **argv)
 		}
 
 		best_sol = get_best_solution(population);
-		copy_solution(best_sol, elitism_solution);
-		copy_solution(elitism_solution, population[0]);
+
+		if(elitism_flag)
+		{
+			copy_solution(best_sol, elitism_solution);
+			copy_solution(elitism_solution, population[0]);
+		}
 
 		// operators for population
 		tournament(population, parents);
@@ -482,11 +498,11 @@ int main(int argc, char **argv)
 
 	time_elapsed = (double)(time_end - time_begin) / CLOCKS_PER_SEC;
 
-	std::cout << "\n[INFO] - From "
+	std::cout << "\n[INFO] - From \""
 			  << first_pop
-			  << " to "
+			  << "\" to \""
 			  << last_pop
-			  << " in "
+			  << "\" in "
 			  << time_elapsed
 			  << " seconds."
 			  << std::endl;

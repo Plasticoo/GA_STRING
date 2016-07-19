@@ -1,7 +1,11 @@
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <utime.h>
 #include <limits.h>
 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/time.h>
 
 #include <cstdlib>
@@ -19,6 +23,8 @@ Optimal results found with these settings
 #define POPULATN_SIZE 1000
 #define GENERATN_SIZE 100000
 */
+
+#define FILE_NAME "results.csv"
 
 typedef unsigned long long ull;
 
@@ -314,6 +320,49 @@ void free_memory(std::vector<solution*>& _parents, std::vector<solution*>& _pop)
 	_pop.clear();
 }
 
+bool file_exists(const std::string &file_name)
+{
+	struct stat _stat;
+	return stat(file_name.c_str(), &_stat) == 0;
+}
+
+FILE* ga_fopen(const std::string& file_name)
+{
+	FILE* _f;
+
+	_f = fopen(file_name.c_str(), "a");
+
+	if(_f == NULL)
+	{
+		std::cout << "[ERROR] - Could not create file." << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	return _f;
+}
+
+void ga_touch(const std::string &path_name)
+{
+	int fd;
+	int rc;
+
+	fd = open(path_name.c_str(), O_WRONLY|O_CREAT|O_NOCTTY|O_NONBLOCK, 0666);
+
+	if(fd == -1)
+    {
+		std::cout << "[ERROR] - Could not open file." << std::endl;
+		exit(EXIT_FAILURE);
+    }
+
+	rc = utimensat(AT_FDCWD, path_name.c_str(), NULL, 0);
+
+    if(rc)
+    {
+		std::cout << "[ERROR] - Could not utimensat()." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
 void print_usage()
 {
 	std::cout << "Usage: ./program [options] -w [string]" << "\n\n"
@@ -392,6 +441,8 @@ int main(int argc, char **argv)
 
 	int copts;
 
+	bool res;
+
 	while((copts = getopt(argc, argv, "c:eg:hm:p:w:")) != -1)
 	{
 		switch(copts)
@@ -423,6 +474,13 @@ int main(int argc, char **argv)
 
 	verify_values();
 
+	res = file_exists(FILE_NAME);
+
+	if(!res)
+	{
+		ga_touch(FILE_NAME);
+	}
+
 	clock_t time_begin;
 	clock_t time_end;
 
@@ -436,6 +494,8 @@ int main(int argc, char **argv)
 
 	srand(time(NULL));
 
+	FILE* f_csv;
+
 	solution* best_sol;
 	solution* elitism_solution(new solution("", 0));
 
@@ -443,6 +503,8 @@ int main(int argc, char **argv)
 	std::vector<solution*> population;
 
 	time_begin = clock();
+
+	f_csv = ga_fopen(FILE_NAME);
 
 	parents_init(parents);
 	population_init(population);
@@ -507,6 +569,11 @@ int main(int argc, char **argv)
 			  << " seconds."
 			  << std::endl;
 
+	fprintf(f_csv, "%d,%d,%f,%f,%s,%0.4f\n", GENERATN_SIZE,
+			POPULATN_SIZE, MUTATION_RATE,
+			CROSSOVR_RATE , string_target.c_str(), time_elapsed);
+
+	fclose(f_csv);
 	delete elitism_solution;
 	free_memory(parents, population);
 

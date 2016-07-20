@@ -46,6 +46,7 @@ float	MUTATION_RATE = 0.02f;
 float	CROSSOVR_RATE = 0.7f;
 
 bool elitism_flag  = false;
+bool output_flag   = false;
 
 struct solution
 {
@@ -366,12 +367,13 @@ void ga_touch(const std::string &path_name)
 void print_usage()
 {
 	std::cout << "Usage: ./program [options] -w [string]" << "\n\n"
-			  << "\t -c \t something\n"
-			  << "\t -e \t something\n"
-			  << "\t -g \t something\n"
-			  << "\t -m \t something\n"
-			  << "\t -p \t something\n"
-			  << "\t -w \t something\n"
+			  << "\t -c \t Crossover rate.\n"
+			  << "\t -e \t Enable elitism.\n"
+			  << "\t -g \t Generation size.\n"
+			  << "\t -m \t Mutation rate.\n"
+			  << "\t -o \t Enable result output.\n"
+			  << "\t -p \t Population size.\n"
+			  << "\t -w \t Word to find.\n"
 			  << std::endl;
 }
 
@@ -381,37 +383,38 @@ void verify_values()
 	   CROSSOVR_RATE == 0.7f	&&
 	   POPULATN_SIZE == 1000	&&
 	   GENERATN_SIZE == 100000  &&
-	   string_length < 64       &&
-	   string_length > 0)
+	   string_length <  64      &&
+	   string_length >  0)
 	{
+		std::cout << "[INFO] - Using default values." << std::endl;
 		return;
 	}
 
 	// verify values
 	if(MUTATION_RATE > 1 || MUTATION_RATE < 0)
 	{
-		std::cout << "[ERROR] - Mutation rate must be between 0 and 1"
+		std::cout << "[ERROR] - Mutation rate must be between 0 and 1."
 				  << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	if(CROSSOVR_RATE > 1 || CROSSOVR_RATE < 0)
 	{
-		std::cout << "[ERROR] - Crossover rate must be between 0 and 1"
+		std::cout << "[ERROR] - Crossover rate must be between 0 and 1."
 				  << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	if(POPULATN_SIZE < 1 || POPULATN_SIZE > INT_MAX)
 	{
-		std::cout << "[ERROR] - Population size must be greater than 1"
+		std::cout << "[ERROR] - Population size must be greater than 1."
 				  << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	if(GENERATN_SIZE < 1 || GENERATN_SIZE > INT_MAX)
 	{
-		std::cout << "[ERROR] - Generation size must be greater than 1"
+		std::cout << "[ERROR] - Generation size must be greater than 1."
 				  << std::endl;
 		exit(EXIT_FAILURE);
 	}
@@ -433,17 +436,11 @@ void verify_values()
 
 int main(int argc, char **argv)
 {
-	/*if(argc < 2)
-	{
-		std::cout << "[ERROR] - No arguments provided." << std::endl;
-		exit(EXIT_FAILURE);
-		}*/
-
 	int copts;
 
 	bool res;
 
-	while((copts = getopt(argc, argv, "c:eg:hm:p:w:")) != -1)
+	while((copts = getopt(argc, argv, "c:eg:hm:op:w:")) != -1)
 	{
 		switch(copts)
 		{
@@ -458,6 +455,9 @@ int main(int argc, char **argv)
 			break;
 		case 'm':
 			MUTATION_RATE = atof(optarg);
+			break;
+		case 'o':
+			output_flag = true;
 			break;
 		case 'p':
 			POPULATN_SIZE = atoi(optarg);
@@ -474,11 +474,14 @@ int main(int argc, char **argv)
 
 	verify_values();
 
-	res = file_exists(FILE_NAME);
-
-	if(!res)
+	if(output_flag)
 	{
-		ga_touch(FILE_NAME);
+		res = file_exists(FILE_NAME);
+
+		if(!res)
+		{
+			ga_touch(FILE_NAME);
+		}
 	}
 
 	clock_t time_begin;
@@ -569,9 +572,12 @@ int main(int argc, char **argv)
 			  << " seconds."
 			  << std::endl;
 
-	fprintf(f_csv, "%d,%d,%f,%f,%s,%0.4f\n", GENERATN_SIZE,
-			POPULATN_SIZE, MUTATION_RATE,
-			CROSSOVR_RATE , string_target.c_str(), time_elapsed);
+	if(output_flag)
+	{
+		fprintf(f_csv, "%d,%d,%0.2f,%0.2f,%s,%0.4f\n", GENERATN_SIZE,
+				POPULATN_SIZE, MUTATION_RATE,
+				CROSSOVR_RATE , string_target.c_str(), time_elapsed);
+	}
 
 	fclose(f_csv);
 	delete elitism_solution;

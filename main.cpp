@@ -419,9 +419,10 @@ void verify_values()
 		exit(EXIT_FAILURE);
 	}
 
-	if(string_length > 64)
+	if(string_length > 64 || string_length <= 0)
 	{
-		std::cout << "[ERROR] - String is too long!" << std::endl;
+		std::cout << "[ERROR] - String size is invalid!" << std::endl;
+		print_usage();
 		exit(EXIT_FAILURE);
 	}
 

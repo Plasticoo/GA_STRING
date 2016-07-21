@@ -32,7 +32,7 @@ static const char alphanum[] =
 	"0123456789"
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"abcdefghijklmnopqrstuvwxyz"
-	"- _";
+	"- _,'?";
 
 const unsigned int alphanum_len = strlen(alphanum);
 
@@ -40,8 +40,8 @@ std::string  string_target;
 unsigned int string_length;
 
 // optparse flags
-int		GENERATN_SIZE = 100000;
-int		POPULATN_SIZE = 1000;
+int     GENERATN_SIZE = 100000;
+int     POPULATN_SIZE = 1000;
 float	MUTATION_RATE = 0.02f;
 float	CROSSOVR_RATE = 0.7f;
 

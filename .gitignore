@@ -1,2 +1,5 @@
 program
 results.csv
+gmon.out
+analysis.txt
+callgrind*

@@ -47,6 +47,7 @@ float	CROSSOVR_RATE = 0.7f;
 
 bool elitism_flag  = false;
 bool output_flag   = false;
+bool verbose_flag  = false;
 
 struct solution
 {
@@ -179,22 +180,24 @@ void print_sol_max_fitness(std::vector<solution*>& _pop)
 		}
 	}
 
-	std::cout << "[INFO] - Text: "
-			  << max_str
-			  << std::endl;
+	if(verbose_flag)
+		std::cout << "[INFO] - Text: "
+				  << max_str
+				  << std::endl;
 }
 
 void population_print(std::vector<solution*>& _pop)
 {
-	for(solution *_sol : _pop)
-	{
-		std::cout << "Text:"
-				  << _sol->text
-				  << " "
-				  << "Fitness:"
-				  << _sol->fitness
-				  << std::endl;
-	}
+	if(verbose_flag)
+		for(solution *_sol : _pop)
+		{
+			std::cout << "Text:"
+					  << _sol->text
+					  << " "
+					  << "Fitness:"
+					  << _sol->fitness
+					  << std::endl;
+		}
 }
 
 void population_init(std::vector<solution*>& _pop)
@@ -441,7 +444,7 @@ int main(int argc, char **argv)
 
 	bool res;
 
-	while((copts = getopt(argc, argv, "c:eg:hm:op:w:")) != -1)
+	while((copts = getopt(argc, argv, "c:eg:hm:op:vw:")) != -1)
 	{
 		switch(copts)
 		{
@@ -462,6 +465,9 @@ int main(int argc, char **argv)
 			break;
 		case 'p':
 			POPULATN_SIZE = atoi(optarg);
+			break;
+		case 'v':
+			verbose_flag = true;
 			break;
 		case 'w':
 			string_target = optarg;
@@ -543,15 +549,17 @@ int main(int argc, char **argv)
 			last_pop = get_best_solution_text(population);
 		}
 
-		std::cout << "[INFO] - Gen: "
-				  << i
-				  << std::endl;
+		if(verbose_flag)
+			std::cout << "[INFO] - Gen: "
+					  << i
+					  << std::endl;
 
 		print_sol_max_fitness(population);
 
-		std::cout << "[INFO] - Max fitness: "
-				  << max_fitness
-				  << std::endl;
+		if(verbose_flag)
+			std::cout << "[INFO] - Max fitness: "
+					  << max_fitness
+					  << std::endl;
 
 		if(max_fitness == string_length)
 		{

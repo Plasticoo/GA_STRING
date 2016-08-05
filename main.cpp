@@ -48,6 +48,7 @@ float	CROSSOVR_RATE = 0.7f;
 bool elitism_flag  = false;
 bool output_flag   = false;
 bool verbose_flag  = false;
+bool worked_flag   = false;
 
 struct solution
 {
@@ -581,11 +582,13 @@ int main(int argc, char **argv)
 			  << " seconds."
 			  << std::endl;
 
+	if(string_target == last_pop) worked_flag = true;
+
 	if(output_flag)
 	{
-		fprintf(f_csv, "%d,%d,%0.2f,%0.2f,%s,%0.4f\n", GENERATN_SIZE,
+		fprintf(f_csv, "%d,%d,%0.2f,%0.2f,%s,%0.4f,%d\n", GENERATN_SIZE,
 				POPULATN_SIZE, MUTATION_RATE,
-				CROSSOVR_RATE , string_target.c_str(), time_elapsed);
+				CROSSOVR_RATE , string_target.c_str(), time_elapsed, (worked_flag ? 1 : 0));
 	}
 
 	fclose(f_csv);

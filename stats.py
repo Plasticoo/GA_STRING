@@ -1,13 +1,11 @@
 import subprocess
 import string
 import random
-#import pdb
 
 from numpy import arange
 
-#pdb.set_trace()
-
 test_strings = []
+
 
 def gen_rand_strings(chars=string.ascii_uppercase +
                      string.digits +
@@ -49,6 +47,7 @@ def main():
 
                         if res.returncode != 0:
                             print('[ERROR] - Main program returned error.')
+                            exit(1)
 
 
 main()

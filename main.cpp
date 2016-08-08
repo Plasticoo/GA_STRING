@@ -331,6 +331,17 @@ bool file_exists(const std::string &file_name)
 	return stat(file_name.c_str(), &_stat) == 0;
 }
 
+int file_size(FILE* file)
+{
+	int size;
+
+	fseek(file, 0L, SEEK_END);
+	size = ftell(file);
+	rewind(file);
+
+	return size;
+}
+
 FILE* ga_fopen(const std::string& file_name)
 {
 	FILE* _f;
@@ -341,6 +352,11 @@ FILE* ga_fopen(const std::string& file_name)
 	{
 		std::cout << "[ERROR] - Could not create file." << std::endl;
 		exit(EXIT_FAILURE);
+	}
+
+	if(file_size(_f) < 1)
+	{
+		fprintf(_f, "GenSize,PopSize,MutationRate,CrossovrRate,StrTarget,Time,Worked\n");
 	}
 
 	return _f;

@@ -1,5 +1,3 @@
-# GA_STRING
-
 Description
 ===========
 

@@ -1,5 +1,3 @@
-# GA_STRING
-
 Description
 ===========
 
@@ -18,4 +16,4 @@ Bugs
 ====
 
 - Does not support strings with less than 6 characters.
-- Does not work with both crossover and mutation rates of 0%.
+- Does not work with crossover rate of 0%.

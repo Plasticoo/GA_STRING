@@ -394,6 +394,7 @@ void print_usage()
 			  << "\t -o \t Enable result output.\n"
 			  << "\t -p \t Population size.\n"
 			  << "\t -w \t Word to find.\n"
+			  << "\t -v \t Verbose mode.\n"
 			  << std::endl;
 }
 

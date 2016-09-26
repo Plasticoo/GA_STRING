@@ -477,6 +477,10 @@ int main(int argc, char **argv)
 			GENERATN_SIZE = atoi(optarg);
 			break;
 		case 'i':
+			std::cout << "String target: ";
+			std::cin >> string_target;
+			string_length = string_target.length();
+			
 			std::cout << "Crossover Rate: ";
 			std::cin >> CROSSOVR_RATE;
 			std::cout << "Generation Size: ";

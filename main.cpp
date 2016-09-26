@@ -390,6 +390,7 @@ void print_usage()
 			  << "\t -c \t Crossover rate.\n"
 			  << "\t -e \t Enable elitism.\n"
 			  << "\t -g \t Generation size.\n"
+			  << "\t -i \t Input from stdin.\n"
 			  << "\t -m \t Mutation rate.\n"
 			  << "\t -o \t Enable result output.\n"
 			  << "\t -p \t Population size.\n"
@@ -462,7 +463,7 @@ int main(int argc, char **argv)
 
 	bool res;
 
-	while((copts = getopt(argc, argv, "c:eg:hm:op:vw:")) != -1)
+	while((copts = getopt(argc, argv, "c:eg:him:op:vw:")) != -1)
 	{
 		switch(copts)
 		{
@@ -474,6 +475,16 @@ int main(int argc, char **argv)
 			break;
 		case 'g':
 			GENERATN_SIZE = atoi(optarg);
+			break;
+		case 'i':
+			std::cout << "Crossover Rate: ";
+			std::cin >> CROSSOVR_RATE;
+			std::cout << "Generation Size: ";
+			std::cin >> GENERATN_SIZE;
+			std::cout << "Mutation Rate: ";
+			std::cin >> MUTATION_RATE;
+			std::cout << "Population Size: ";
+			std::cin >> POPULATN_SIZE;
 			break;
 		case 'm':
 			MUTATION_RATE = atof(optarg);
